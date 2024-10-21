@@ -3,6 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Improved Diagnostic Cast Sender</title>
+    <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
+    <script>
+        let castContext;
+
+        window['__onGCastApiAvailable'] = function(isAvailable) {
+            console.log('Cast API available:', isAvailable);
+            if (isAvailable) {
+                initializeCastApi();
+            } else {
+                console.error('Cast API is not available');
+                updateStatus('Cast API is not available');
+            }
+        };
+
+        function initializeCastApi() {
+            try {
+                castContext = cast.framework.CastContext.getInstance();
+                castContext.setOptions({
+                    receiverApplicationId: 'ED052386', // Your custom receiver app ID
+                    autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
+                });
+                console.log('Cast API initialized successfully');
+                updateStatus('Cast API initialized. Ready to connect.');
+                
+                castContext.addEventListener(cast.framework.CastContextEventType.CAST_STATE_CHANGED, function(event) {
+                    console.log('Cast state changed:', event.castState);
+                    updateStatus('Cast state changed: ' + event.castState);
+                });
+
+                // Start listening for devices immediately
+                checkDeviceAvailability();
+            } catch (error) {
+                console.error('Error initializing Cast API:', error);
+                updateStatus('Failed to initialize Cast API: ' + error.message);
+            }
+        }
+
+        function requestSession() {
+            console.log('Requesting session...');
+            castContext.requestSession()
+                .then(function(session) {
+                    console.log('Cast session started successfully:', session);
+                    updateStatus('Connected to Chromecast!');
+                })
+                .catch(function(error) {
+                    console.error('Error starting cast session:', error);
+                    console.log('Error details:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
+                    updateStatus('Failed to connect: ' + (error.message || 'Unknown error'));
+                    // Try alternative method
+                    initiateManualCast();
+                });
+        }
+
+        function checkDeviceAvailability() {
+            const castState = castContext.getCastState();
+            console.log('Current Cast State:', castState);
+            updateStatus('Current Cast State: ' + castState);
+            
+            if (castState !== cast.framework.CastState.NO_DEVICES_AVAILABLE) {
+                console.log('Devices are available');
+            } else {
+                console.log('No devices available. Will keep checking...');
+                setTimeout(checkDeviceAvailability, 5000); // Check again in 5 seconds
+            }
+        }
+
+        function initiateManualCast() {
+            console.log('Attempting manual cast...');
+            const sessionRequest = new chrome.cast.SessionRequest(castContext.getOptions().receiverApplicationId);
+            chrome.cast.requestSession(
+                function(session) {
+                    console.log('Manual cast successful:', session);
+                    updateStatus('Connected via manual cast!');
+                },
+                function(error) {
+                    console.error('Manual cast failed:', error);
+                    updateStatus('Manual cast failed: ' + error.description);
+                },
+                sessionRequest
+            );
+        }
+
+        function updateStatus(message) {
+            document.getElementById('status').textContent = message;
+            console.log('Status updated:', message);
+        }
+    </script>
+</head>
+<body>
+    <h1>Improved Diagnostic Google Cast Sender</h1>
+    <button onclick="requestSession()">Connect to Chromecast</button>
+    <button onclick="checkDeviceAvailability()">Check Device Availability</button>
+    <button onclick="initiateManualCast()">Try Manual Cast</button>
+    <p id="status">Not connected</p>
+</body>
+</html>
+
+
+
+<!--<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Diagnostic Cast Sender</title>
     <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
     <script>
@@ -99,4 +204,4 @@ function errorHandler(error) {
     <button onclick="checkDeviceAvailability()">Check Device Availability</button>
 
 </body>
-</html>
+</html>-->
