@@ -14,10 +14,13 @@
         window['__onGCastApiAvailable'] = function(isAvailable) {
             if (isAvailable) {
                 initializeCastApi();
+            }else{
+                console.log("initializeCastApiGAY");
             }
         };
 
         function initializeCastApi() {
+            console.log("initializeCastApi");
             cast.framework.CastContext.getInstance().setOptions({
                 receiverApplicationId: 'ED052386',
                 autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
@@ -27,6 +30,7 @@
         }
 
         function castHello() {
+            console.log("clickarino bambino");
             const castSession = cast.framework.CastContext.getInstance().getCurrentSession();
             if (castSession) {
                 const message = 'Hello';
@@ -38,7 +42,7 @@
         const castButton = document.getElementById('castButton');
             castButton.addEventListener('click', castHello);
 
-            
+
     </script>
 </body>
 </html>
