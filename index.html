@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Google Cast Sender</title>
-    <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
+
 </head>
 <body>
     <h1>Google Cast Sender</h1>
@@ -13,11 +13,6 @@
     <script>
         let castContext;
 
-window['__onGCastApiAvailable'] = function(isAvailable) {
-    if (isAvailable) {
-        initializeCastApi();
-    }
-};
 
 const RockAndRollMotherFuckers = async (event) => {
     
@@ -27,7 +22,7 @@ const RockAndRollMotherFuckers = async (event) => {
 
 }
 const  initializeCastApi = () => {
-  
+  console.log("calling stuff and things");
     const  applicationId = 'ED052386';
   
   cast.framework.CastContext.getInstance().setOptions({
@@ -38,9 +33,13 @@ const  initializeCastApi = () => {
   cast.framework.CastContext.getInstance().addEventListener(cast.framework.CastContextEventType.SESSION_STATE_CHANGED, RockAndRollMotherFuckers);
 };
 
+
+
 window['__onGCastApiAvailable'] = function(isAvailable) {
   if (isAvailable) {
     initializeCastApi();
+  }else{
+      console.log('Cast API is not available');
   }
 };
 
@@ -69,5 +68,7 @@ function initializeCastApi() {
 */
 
     </script>
+
+<script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
 </body>
 </html>
