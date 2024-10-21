@@ -2,7 +2,9 @@
 <html>
 <head>
     <title>Chrome Cast Sender with Display Info</title>
-    <link rel="icon" href="data:,">
+  
+    <script type="text/javascript" src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
+  
 </head>
 <body>
     <h1>Chrome Cast Sender</h1>
@@ -64,16 +66,13 @@ castContext.addEventListener(
 
     
 
-        window['__onGCastApiAvailable'] = function(isAvailable) {
-            if (isAvailable) {
-                initializeCastApi();
-            }
-        };
+
 
 
 */
     </script>
-<script type="text/javascript" src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
-<sript type="model" src="/sender.js"></sript>
+      <script type="module" src="/main.js"></script>
+
+
 </body>
 </html>
