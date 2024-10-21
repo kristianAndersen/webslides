@@ -3,6 +3,7 @@
 <head>
     <title>Chrome Cast Sender with Display Info</title>
     <script type="text/javascript" src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
+    
 </head>
 <body>
     <h1>Chrome Cast Sender</h1>
@@ -45,7 +46,7 @@
                 } else {
                     statusDiv.textContent = 'Attempting to connect...';
                     castContext.requestSession()
-                        .then(handleSessionSuccess)
+                        .then(handleSessionSuccess(session))
                         .catch(handleSessionError);
                 }
             });
