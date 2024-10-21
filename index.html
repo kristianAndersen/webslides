@@ -30,7 +30,7 @@
             console.log('Session state changed:', event.sessionState);
             if (event.sessionState === cast.framework.SessionState.SESSION_STARTED) {
                 session = event.session;
-                requestDisplayInfo(session); // Only send the message when session is connected
+              //  requestDisplayInfo(session); // Only send the message when session is connected
             }
         });
 
@@ -63,7 +63,7 @@
                         statusDiv.textContent = 'Session has started';
                         session = event.session;
                         setupMessageListener(session);
-                        requestDisplayInfo(session);
+                       // requestDisplayInfo(session);
                         break;
                     case cast.framework.SessionState.SESSION_START_FAILED:
                         statusDiv.textContent = 'Failed to start session';
@@ -85,6 +85,7 @@
             if (session) {
                 session.addMessageListener('urn:x-cast:com.example.castmessage', function(namespace, message) {
                     const displayInfo = JSON.parse(message);
+                    
                     document.getElementById('displayInfo').innerHTML = `
                         <p>Width: ${displayInfo.width}px</p>
                         <p>Height: ${displayInfo.height}px</p>
@@ -120,8 +121,8 @@
             if (session) {
                 console.log('Session established successfully:', session);
                 document.getElementById('status').textContent = 'Connected successfully';
-                setupMessageListener(session);
-                requestDisplayInfo(session);
+               // setupMessageListener(session);
+              //  requestDisplayInfo(session);
             } else {
                 console.error('Session is still null after session success');
             }
