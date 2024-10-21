@@ -25,11 +25,15 @@
 
 
 castContext.addEventListener(
+    
     cast.framework.CastContextEventType.SESSION_STATE_CHANGED,
     (event) => {
       if (event.sessionState === cast.framework.SessionState.SESSION_STARTED) {
         console.log('Session started successfully!');
         session = this.castContext.getCurrentSession();
+        
+        document.getElementById('castBtn').addEventListener('click', () => this.cast());
+
       } else if (event.sessionState === cast.framework.SessionState.SESSION_ENDED) {
         console.log('Session ended.');
         session = null;
@@ -37,7 +41,21 @@ castContext.addEventListener(
     }
   );
 
-        
+  const cast =()=> {
+        const castContext = cast.framework.CastContext.getInstance();
+        const session = castContext.getCurrentSession();
+    
+        if (!session) {
+            console.warn('No cast session available. Prompting user to select a cast device.');
+            // Trigger the device selection prompt
+            castContext.requestSession();
+            return;
+        }
+    
+        console.log('Cast session available. Sending message.');
+        //this.state.url = this.getUrls();
+      //  this.sendMessage(this.state);
+    }       
 
 
 
