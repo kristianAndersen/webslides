@@ -63,11 +63,40 @@
             document.getElementById('status').textContent = message;
             console.log('Status updated:', message);
         }
+
+        function checkDeviceAvailability() {
+    const context = cast.framework.CastContext.getInstance();
+    console.log('Current Cast State:', context.getCastState());
+    
+    if ('requestSessionAndLaunchApp' in chrome.cast) {
+        chrome.cast.requestSessionAndLaunchApp(
+            null,
+            sessionListener,
+            errorHandler
+        );
+    } else {
+        console.log('requestSessionAndLaunchApp not available');
+    }
+}
+
+function sessionListener(session) {
+    console.log('Session created successfully:', session);
+}
+
+function errorHandler(error) {
+    console.error('Error:', error);
+}
+
+
+
     </script>
 </head>
 <body>
     <h1>Diagnostic Google Cast Sender</h1>
     <button onclick="requestSession()">Connect to Chromecast</button>
     <p id="status">Not connected</p>
+
+    <button onclick="checkDeviceAvailability()">Check Device Availability</button>
+
 </body>
 </html>
