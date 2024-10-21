@@ -23,12 +23,16 @@
             return { width, height, aspectRatio };
         }
 
+
         context.addCustomMessageListener('urn:x-cast:com.example.castmessage', function(event) {
-            if (event.data === 'REQUEST_DISPLAY_INFO') {
-                const displayInfo = getDisplayInfo();
-                context.sendCustomMessage('urn:x-cast:com.example.castmessage', event.senderId, JSON.stringify(displayInfo));
-            }
-        });
+    console.log('Message received:', event.data);
+    if (event.data === 'REQUEST_DISPLAY_INFO') {
+        const displayInfo = getDisplayInfo();
+        console.log('Sending display info:', displayInfo);
+        context.sendCustomMessage('urn:x-cast:com.example.castmessage', event.senderId, JSON.stringify(displayInfo));
+    }
+});
+
 
         context.start(options);
     </script>

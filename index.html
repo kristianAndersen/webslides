@@ -87,7 +87,12 @@
         function requestDisplayInfo(session) {
             if (session) {
                 session.sendMessage('urn:x-cast:com.example.castmessage', 'REQUEST_DISPLAY_INFO')
+                    .then(() => {
+                        console.log('Message sent successfully');
+                    })
                     .catch(error => console.error('Error sending message:', error));
+            } else {
+                console.error('Session is null, cannot send message.');
             }
         }
 
