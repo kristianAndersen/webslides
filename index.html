@@ -1,4 +1,3 @@
-<!-- Sender HTML file (sender.html or index.html) -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -12,7 +11,7 @@
     <div id="status"></div>
 
     <script>
-        let session;
+        let session = null;
 
         window['__onGCastApiAvailable'] = function(isAvailable) {
             if (isAvailable) {
@@ -31,7 +30,7 @@
             const statusDiv = document.getElementById('status');
 
             castButton.addEventListener('click', () => {
-                if (session) {
+                if (session && session.status === cast.framework.SessionState.CONNECTED) {
                     endCurrentSession();
                 } else {
                     statusDiv.textContent = 'Attempting to connect...';
@@ -41,34 +40,62 @@
                 }
             });
 
-            // Listen for changes in the cast state
-            castContext.addEventListener(cast.framework.CastContextEventType.CAST_STATE_CHANGED, (event) => {
-                switch(event.castState) {
-                    case cast.framework.CastState.NO_DEVICES_AVAILABLE:
-                        statusDiv.textContent = 'No casting devices available';
+            castContext.addEventListener(cast.framework.CastContextEventType.SESSION_STATE_CHANGED, (event) => {
+                switch(event.sessionState) {
+                    case cast.framework.SessionState.NO_SESSION:
+                        statusDiv.textContent = 'No active session';
+                        session = null;
                         break;
-                    case cast.framework.CastState.NOT_CONNECTED:
-                        statusDiv.textContent = 'Not connected to a casting device';
+                    case cast.framework.SessionState.SESSION_STARTING:
+                        statusDiv.textContent = 'Session is starting...';
                         break;
-                    case cast.framework.CastState.CONNECTED:
-                        statusDiv.textContent = 'Connected to casting device';
+                    case cast.framework.SessionState.SESSION_STARTED:
+                        statusDiv.textContent = 'Session has started';
+                        session = event.session;
+                        setupMessageListener(session);
+                        requestDisplayInfo(session);
+                        break;
+                    case cast.framework.SessionState.SESSION_START_FAILED:
+                        statusDiv.textContent = 'Failed to start session';
+                        session = null;
+                        break;
+                    case cast.framework.SessionState.SESSION_ENDING:
+                        statusDiv.textContent = 'Session is ending...';
+                        break;
+                    case cast.framework.SessionState.SESSION_ENDED:
+                        statusDiv.textContent = 'Session has ended';
+                        session = null;
+                        document.getElementById('displayInfo').innerHTML = '';
                         break;
                 }
             });
         }
 
+        function setupMessageListener(session) {
+            if (session) {
+                session.addMessageListener('urn:x-cast:com.example.castmessage', function(namespace, message) {
+                    const displayInfo = JSON.parse(message);
+                    document.getElementById('displayInfo').innerHTML = `
+                        <p>Width: ${displayInfo.width}px</p>
+                        <p>Height: ${displayInfo.height}px</p>
+                        <p>Aspect Ratio: ${displayInfo.aspectRatio}</p>
+                    `;
+                });
+            }
+        }
+
+        function requestDisplayInfo(session) {
+            if (session) {
+                session.sendMessage('urn:x-cast:com.example.castmessage', 'REQUEST_DISPLAY_INFO')
+                    .catch(error => console.error('Error sending message:', error));
+            }
+        }
+
         function handleSessionSuccess(s) {
             session = s;
             document.getElementById('status').textContent = 'Connected successfully';
-            session.addMessageListener('urn:x-cast:com.example.castmessage', function(namespace, message) {
-                const displayInfo = JSON.parse(message);
-                document.getElementById('displayInfo').innerHTML = `
-                    <p>Width: ${displayInfo.width}px</p>
-                    <p>Height: ${displayInfo.height}px</p>
-                    <p>Aspect Ratio: ${displayInfo.aspectRatio}</p>
-                `;
-            });
-            session.sendMessage('urn:x-cast:com.example.castmessage', 'REQUEST_DISPLAY_INFO');
+            setupMessageListener(session);
+            requestDisplayInfo(session);
         }
 
         function handleSessionError(err) {
@@ -78,15 +105,16 @@
                 errorMessage = 'Casting was cancelled';
             }
             document.getElementById('status').textContent = errorMessage;
+            session = null;
         }
 
         function endCurrentSession() {
             if (session) {
-                session.leave()
+                session.endSession(true)
                     .then(() => {
-                        session = null;
-                        document.getElementById('status').textContent = 'Disconnected from casting device';
+                        document.getElementById('status').textContent = 'Session ended';
                         document.getElementById('displayInfo').innerHTML = '';
+                        session = null;
                     })
                     .catch((err) => {
                         console.error('Error ending session:', err);
