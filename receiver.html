@@ -17,7 +17,7 @@
             'urn:x-cast:com.example.castapp': cast.framework.system.MessageType.STRING
         };
 
-        context.addCustomMessageListener('urn:x-cast:com.example.castapp', function(event) {
+        context.addCustomMessageListener('urn:x-cast:com.gronkBonk.castapp', function(event) {
             const message = event.data;
             document.getElementById('message').textContent = message + ' World!';
         });

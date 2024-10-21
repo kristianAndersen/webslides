@@ -45,7 +45,7 @@ function castHello() {
     const castSession = castContext.getCurrentSession();
     if (castSession) {
         const message = 'Hello';
-        castSession.sendMessage('urn:x-cast:com.example.castapp', message)
+        castSession.sendMessage('urn:x-cast:com.gronkBonk.castapp', message)
             .then(() => console.log('Message sent successfully'))
             .catch((error) => console.error('Error sending message:', error));
     } else {
