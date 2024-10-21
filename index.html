@@ -35,7 +35,7 @@
                 } else {
                     statusDiv.textContent = 'Attempting to connect...';
                     castContext.requestSession()
-                        .then(handleSessionSuccess)
+                        .then(handleSessionSuccess(session))
                         .catch(handleSessionError);
                 }
             });
@@ -84,24 +84,33 @@
             }
         }
 
+
         function requestDisplayInfo(session) {
+                if (session) {
+                    session.sendMessage('urn:x-cast:com.example.castmessage', 'REQUEST_DISPLAY_INFO')
+                        .then(() => {
+                            console.log('Message sent successfully');
+                        })
+                        .catch(error => console.error('Error sending message:', error));
+                } else {
+                    console.error('Session is null, cannot send message.');
+                }
+            }
+
+
+
+
+            function handleSessionSuccess(s) {
+            session = s;
             if (session) {
-                session.sendMessage('urn:x-cast:com.example.castmessage', 'REQUEST_DISPLAY_INFO')
-                    .then(() => {
-                        console.log('Message sent successfully');
-                    })
-                    .catch(error => console.error('Error sending message:', error));
+                document.getElementById('status').textContent = 'Connected successfully';
+                setupMessageListener(session);
+                requestDisplayInfo(session); // Make sure session is not null when calling this
             } else {
-                console.error('Session is null, cannot send message.');
+                console.error('Session is still null after session success');
             }
         }
 
-        function handleSessionSuccess(s) {
-            session = s;
-            document.getElementById('status').textContent = 'Connected successfully';
-            setupMessageListener(session);
-            requestDisplayInfo(session);
-        }
 
         function handleSessionError(err) {
             console.error('Error:', err);
