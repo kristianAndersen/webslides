@@ -45,7 +45,7 @@
                 } else {
                     statusDiv.textContent = 'Attempting to connect...';
                     castContext.requestSession()
-                        .then(handleSessionSuccess(session))
+                        .then(handleSessionSuccess)
                         .catch(handleSessionError);
                 }
             });
@@ -96,32 +96,32 @@
 
 
         function requestDisplayInfo(session) {
-            if (session) {
-                console.log('Sending message: REQUEST_DISPLAY_INFO');
-                session.sendMessage('urn:x-cast:com.example.castmessage', 'REQUEST_DISPLAY_INFO')
-                    .then(() => {
-                        console.log('Message sent successfully');
-                    })
-                    .catch(error => {
-                        console.error('Error sending message:', error);
-                        // Log details for better debugging
-                        console.error('Session state:', session.status);
-                        console.error('Error details:', error.message, error.stack);
-                    });
-            } else {
-                console.error('Session is null or not connected, cannot send message.');
-            }
+        if (session) {
+            console.log('Sending message: REQUEST_DISPLAY_INFO');
+            session.sendMessage('urn:x-cast:com.example.castmessage', 'REQUEST_DISPLAY_INFO')
+                .then(() => {
+                    console.log('Message sent successfully');
+                })
+                .catch(error => {
+                    console.error('Error sending message:', error);
+                    console.error('Session state:', session.status || 'undefined');
+                    console.error('Error details:', error.message || 'undefined', error.stack || 'undefined');
+                });
+        } else {
+            console.error('Session is null or not connected, cannot send message.');
         }
+    }
 
 
 
 
-            function handleSessionSuccess(s) {
+        function handleSessionSuccess(s) {
             session = s;
             if (session) {
+                console.log('Session established successfully:', session);
                 document.getElementById('status').textContent = 'Connected successfully';
                 setupMessageListener(session);
-                requestDisplayInfo(session); // Make sure session is not null when calling this
+                requestDisplayInfo(session);
             } else {
                 console.error('Session is still null after session success');
             }
