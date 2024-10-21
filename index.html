@@ -33,7 +33,7 @@
             console.log('Session state changed:', event.sessionState);
             if (event.sessionState === cast.framework.SessionState.SESSION_STARTED) {
            
-                session = cast.framework.CastContext.getInstance().getCurrentSession();
+               
               //  requestDisplayInfo(session); // Only send the message when session is connected
             }
         });
@@ -65,7 +65,7 @@
                         break;
                     case cast.framework.SessionState.SESSION_STARTED:
                         statusDiv.textContent = 'Session has started';
-                        session = event.session;
+                        session = cast.framework.CastContext.getInstance().getCurrentSession();
                         setupMessageListener(session);
                        // requestDisplayInfo(session);
                         break;
