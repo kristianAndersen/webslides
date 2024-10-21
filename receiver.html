@@ -1,31 +1,20 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cast Receiver</title>
-
-    <script type="text/javascript" src="//www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
-    
-    <script>
-        const context =  cast.framework.CastReceiverContext.getInstance().start();
-        
-        context.addCustomMessageListener('urn:x-cast:com.nokbok.helloworld', (event) => {
-            const message = event.data; // Receives the "Hello" message
-            console.log('Message received from sender:', message);
-
-            // Respond by adding "World" to the message
-            const fullMessage = message + " World";
-            
-            // Display the result in the HTML
-            document.getElementById('message').textContent = fullMessage;
-        });
-
-        context.start(); // Start the Cast Receiver
-    </script>
+    <script src="//www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
 </head>
 <body>
-    <h1>Receiver Display</h1>
-    <div id="message">Waiting for a message...</div>
+    <cast-media-player></cast-media-player>
+    <script>
+        const context = cast.framework.CastReceiverContext.getInstance();
+        const playerManager = context.getPlayerManager();
+
+        // Optionally, add a custom message listener
+        context.addCustomMessageListener('urn:x-cast:com.your.namespace', function(event) {
+            console.log('Received message: ' + JSON.stringify(event.data));
+        });
+
+        context.start();
+    </script>
 </body>
 </html>
