@@ -3,6 +3,7 @@ const sender=()=>{
         if (isAvailable) {
            console.log('CastApiAvailable');
              initializeCastApi();
+             setupEventListeners();
         }
     };
       const initializeCastApi = ()=> {
@@ -33,9 +34,23 @@ const sender=()=>{
     }
 
 
+    const setupEventListeners=()=> {
+
+        this.castContext.addEventListener(
+            cast.framework.CastContextEventType.SESSION_STATE_CHANGED,
+            (event) => {
+              if (event.sessionState === cast.framework.SessionState.SESSION_STARTED) {
+                console.log('Session started successfully!');
+                session = castContext.getCurrentSession();
+              } else if (event.sessionState === cast.framework.SessionState.SESSION_ENDED) {
+                console.log('Session ended.');
+                session = null;
+              }
+            }
+          );
 
       document.getElementById('castButton').addEventListener('click', () => casting());
-
+        }
   
 }
 
