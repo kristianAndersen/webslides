@@ -3,52 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cast Sender</title>
-   
+    <title>Simplified Cast Sender</title>
     <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
-
     <script>
-        // Initialize Cast Framework
         window['__onGCastApiAvailable'] = function(isAvailable) {
             if (isAvailable) {
-                initializeCast();
+                initializeCastApi();
             }
         };
 
-        let castSession;
-
-        function initializeCast() {
-            const castContext = cast.framework.CastContext.getInstance();
-            castContext.setOptions({
-                receiverApplicationId: 'ED052386', // Replace with your custom receiver app ID
-                autoJoinPolicy: chrome.cast.AutoJoinPolicy.TAB_AND_ORIGIN_SCOPED
-            });
-
-            document.getElementById('castButton').addEventListener('click', startCasting);
-        }
-
-        function startCasting() {
-            const castContext = cast.framework.CastContext.getInstance();
-            castContext.requestSession().then(function(session) {
-                castSession = session;
-                // Send a "Hello" message to the receiver
-                sendMessage('Hello');
-            }).catch(function(error) {
-                console.error('Error starting cast session:', error);
+        function initializeCastApi() {
+            const context = cast.framework.CastContext.getInstance();
+            context.setOptions({
+                receiverApplicationId: 'ED052386', // Replace with your app ID
+                autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
             });
         }
 
-        function sendMessage(message) {
-            if (castSession) {
-                castSession.sendMessage('urn:x-cast:com.nokbok.helloworld', message)
-                    .then(() => console.log('Message sent: ' + message))
-                    .catch((error) => console.error('Error sending message:', error));
-            }
+        function requestSession() {
+            const castContext = cast.framework.CastContext.getInstance();
+            castContext.requestSession()
+                .then(function(session) {
+                    console.log('Cast session started successfully');
+                    document.getElementById('status').textContent = 'Connected to Chromecast!';
+                })
+                .catch(function(error) {
+                    console.error('Error starting cast session:', error);
+                    document.getElementById('status').textContent = 'Failed to connect: ' + error.message;
+                });
         }
     </script>
 </head>
 <body>
-    <h1>Google Cast Sender</h1>
-    <button id="castButton">Cast "Hello"</button>
+    <h1>Simplified Google Cast Sender</h1>
+    <button onclick="requestSession()">Connect to Chromecast</button>
+    <p id="status">Not connected</p>
 </body>
 </html>
