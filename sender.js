@@ -3,7 +3,7 @@ const sender=()=>{
         if (isAvailable) {
            console.log('CastApiAvailable');
              initializeCastApi();
-             setupEventListeners();
+             
         }
     };
       const initializeCastApi = ()=> {
@@ -14,7 +14,7 @@ const sender=()=>{
             resumeSavedSession:         true,
         });
 
-
+        setupEventListeners();
       };
  
 
