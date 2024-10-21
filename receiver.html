@@ -1,11 +1,12 @@
+<!-- Receiver HTML file (receiver.html) -->
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Chrome Cast Text Receiver</title>
+    <title>Chrome Cast Receiver with Display Info</title>
     <script type="text/javascript" src="//www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
 </head>
 <body>
-    <h1>Chrome Cast Text Receiver</h1>
+    <h1>Chrome Cast Receiver</h1>
     <div id="message"></div>
 
     <script>
@@ -15,8 +16,18 @@
             'urn:x-cast:com.example.castmessage': cast.framework.system.MessageType.STRING
         };
 
+        function getDisplayInfo() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            const aspectRatio = (width / height).toFixed(2);
+            return { width, height, aspectRatio };
+        }
+
         context.addCustomMessageListener('urn:x-cast:com.example.castmessage', function(event) {
-            document.getElementById('message').innerText = event.data;
+            if (event.data === 'REQUEST_DISPLAY_INFO') {
+                const displayInfo = getDisplayInfo();
+                context.sendCustomMessage('urn:x-cast:com.example.castmessage', event.senderId, JSON.stringify(displayInfo));
+            }
         });
 
         context.start(options);
