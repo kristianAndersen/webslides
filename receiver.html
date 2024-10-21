@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chrome Cast Text Receiver</title>
+    <script type="text/javascript" src="//www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
+</head>
+<body>
+    <h1>Chrome Cast Text Receiver</h1>
+    <div id="message"></div>
+
+    <script>
+        const context = cast.framework.CastReceiverContext.getInstance();
+        const options = new cast.framework.CastReceiverOptions();
+        options.customNamespaces = {
+            'urn:x-cast:com.example.castmessage': cast.framework.system.MessageType.STRING
+        };
+
+        context.addCustomMessageListener('urn:x-cast:com.example.castmessage', function(event) {
+            document.getElementById('message').innerText = event.data;
+        });
+
+        context.start(options);
+    </script>
+</body>
+</html>

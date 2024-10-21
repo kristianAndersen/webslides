@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chrome Cast Text Sender</title>
+    <script type="text/javascript" src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
+</head>
+<body>
+    <h1>Chrome Cast Text Sender</h1>
+    <input type="text" id="message" placeholder="Enter your message">
+    <button id="sendButton">Send</button>
+
+    <script>
+        let session;
+
+        window['__onGCastApiAvailable'] = function(isAvailable) {
+            if (isAvailable) {
+                initializeCastApi();
+            }
+        };
+
+        function initializeCastApi() {
+            cast.framework.CastContext.getInstance().setOptions({
+                receiverApplicationId: chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID,
+                autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
+            });
+
+            cast.framework.CastContext.getInstance().addEventListener(
+                cast.framework.CastContextEventType.SESSION_STATE_CHANGED,
+                function(event) {
+                    if (event.sessionState === cast.framework.SessionState.SESSION_STARTED) {
+                        session = event.session;
+                    }
+                }
+            );
+        }
+
+        document.getElementById('sendButton').addEventListener('click', function() {
+            if (session) {
+                const message = document.getElementById('message').value;
+                session.sendMessage('urn:x-cast:com.example.castmessage', message);
+            } else {
+                console.log('No active session');
+            }
+        });
+    </script>
+</body>
+</html>
