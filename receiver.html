@@ -1,40 +1,28 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Chrome Cast Receiver with Display Info</title>
-    <script type="text/javascript" src="//www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Cast Receiver</title>
+    <script src="//www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
 </head>
 <body>
-    <h1>Chrome Cast Receiver</h1>
-    <div id="message"></div>
+    <h1 id="message">Waiting for message...</h1>
 
     <script>
         const context = cast.framework.CastReceiverContext.getInstance();
         const options = new cast.framework.CastReceiverOptions();
+
         options.customNamespaces = {
-            'urn:x-cast:com.example.castmessage': cast.framework.system.MessageType.STRING
+            'urn:x-cast:com.example.castapp': cast.framework.system.MessageType.STRING
         };
 
-        function getDisplayInfo() {
-            const width = window.innerWidth;
-            const height = window.innerHeight;
-            const aspectRatio = (width / height).toFixed(2);
-            return { width, height, aspectRatio };
-        }
-
-        context.addCustomMessageListener('urn:x-cast:com.example.castmessage', function(event) {
-            console.log('Message received:', event.data);
-            if (event.data === 'REQUEST_DISPLAY_INFO') {
-                const displayInfo = getDisplayInfo();
-                console.log('Sending display info:', displayInfo);
-                context.sendCustomMessage('urn:x-cast:com.example.castmessage', event.senderId, JSON.stringify(displayInfo))
-                    .then(() => console.log('Display info sent successfully'))
-                    .catch(error => console.error('Error sending display info:', error));
-            }
+        context.addCustomMessageListener('urn:x-cast:com.example.castapp', function(event) {
+            const message = event.data;
+            document.getElementById('message').textContent = message + ' World!';
         });
 
         context.start(options);
-        console.log('Receiver application started');
     </script>
 </body>
 </html>
