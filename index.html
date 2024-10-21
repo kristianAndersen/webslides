@@ -32,6 +32,9 @@
         function castHello() {
             console.log("clickarino bambino");
             const castSession = cast.framework.CastContext.getInstance().getCurrentSession();
+            
+            console.log(castSession);
+
             if (castSession) {
                 const message = 'Hello';
                 castSession.sendMessage('urn:x-cast:com.example.castapp', message);
