@@ -11,41 +11,50 @@
     <button id="castButton">Cast</button>
 
     <script>
-        window['__onGCastApiAvailable'] = function(isAvailable) {
-            if (isAvailable) {
-                initializeCastApi();
-            }else{
-                console.log("initializeCastApiGAY");
-            }
-        };
+        let castContext;
 
-        function initializeCastApi() {
-            console.log("initializeCastApi");
-            cast.framework.CastContext.getInstance().setOptions({
-                receiverApplicationId: 'ED052386',
-                autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
-            });
+window['__onGCastApiAvailable'] = function(isAvailable) {
+    if (isAvailable) {
+        initializeCastApi();
+    }
+};
 
-            
-        }
+function initializeCastApi() {
+    castContext = cast.framework.CastContext.getInstance();
+    castContext.setOptions({
+        receiverApplicationId: 'ED052386',
+        autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
+    });
 
-        function castHello() {
-            console.log("clickarino bambino");
-            const castSession = cast.framework.CastContext.getInstance().getCurrentSession();
-            
-            console.log(castSession);
+    const castButton = document.getElementById('castButton');
+    castButton.addEventListener('click', castHello);
 
-            if (castSession) {
-                const message = 'Hello';
-                castSession.sendMessage('urn:x-cast:com.example.castapp', message);
+    // Listen for session state changes
+    castContext.addEventListener(
+        cast.framework.CastContextEventType.SESSION_STATE_CHANGED,
+        function(event) {
+            console.log('Session state changed:', event.sessionState);
+            if (event.sessionState === cast.framework.SessionState.SESSION_STARTED) {
+                castHello();
             }
         }
+    );
+}
 
-
-        const castButton = document.getElementById('castButton');
-            castButton.addEventListener('click', castHello);
-
-
+function castHello() {
+    const castSession = castContext.getCurrentSession();
+    if (castSession) {
+        const message = 'Hello';
+        castSession.sendMessage('urn:x-cast:com.example.castapp', message)
+            .then(() => console.log('Message sent successfully'))
+            .catch((error) => console.error('Error sending message:', error));
+    } else {
+        console.log('No active session. Starting a new session...');
+        castContext.requestSession()
+            .then(() => console.log('Cast session requested'))
+            .catch((error) => console.error('Error requesting cast session:', error));
+    }
+}
     </script>
 </body>
 </html>
