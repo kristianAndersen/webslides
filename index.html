@@ -11,16 +11,19 @@
     <div id="status"></div>
 
     <script>
-        const castContext = cast.framework.CastContext.getInstance();
+     
         let session = null;
-
+        let castContext=null;
         const initializeCastApi = ()=> {
-                castContext.setOptions({
+               
+            castContext.setOptions({
                     receiverApplicationId: 'ED052386',
                     autoJoinPolicy: chrome.cast.AutoJoinPolicy.TAB_AND_ORIGIN_SCOPED
 
-                });
-
+            });
+                
+                
+            castContext = cast.framework.CastContext.getInstance();
         };
 
 
