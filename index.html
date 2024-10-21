@@ -18,8 +18,10 @@
                 receiverApplicationId: 'ED052386',
                 autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
             });
+            console.log("Cast API initialized");
+  
         };     
-
+/*
         let castSession = cast.framework.CastContext.getInstance().getCurrentSession();
             castSession.sendMessage("namespace", "message");
 
@@ -27,7 +29,7 @@
         castSession.addMessageListener("namespace", (namespace, message) => {
             console.log(namespace, message);
         });
-
+*/
         window['__onGCastApiAvailable'] = function(isAvailable) {
         if (isAvailable) {
             initializeCastApi();
