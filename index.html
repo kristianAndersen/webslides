@@ -3,34 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simplified Cast Sender</title>
+    <title>Simplified Cast Sender with Enhanced Error Logging</title>
     <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
     <script>
         window['__onGCastApiAvailable'] = function(isAvailable) {
             if (isAvailable) {
                 initializeCastApi();
+            } else {
+                console.error('Cast API is not available');
+                updateStatus('Cast API is not available');
             }
         };
 
         function initializeCastApi() {
-            const context = cast.framework.CastContext.getInstance();
-            context.setOptions({
-                receiverApplicationId: 'ED052386', // Replace with your app ID
-                autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
-            });
+            try {
+                const context = cast.framework.CastContext.getInstance();
+                context.setOptions({
+                    receiverApplicationId: 'ED052386', // Replace with your app ID or try 'CC1AD845'
+                    autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
+                });
+                console.log('Cast API initialized successfully');
+                updateStatus('Cast API initialized. Ready to connect.');
+            } catch (error) {
+                console.error('Error initializing Cast API:', error);
+                updateStatus('Failed to initialize Cast API: ' + error.message);
+            }
         }
 
         function requestSession() {
             const castContext = cast.framework.CastContext.getInstance();
             castContext.requestSession()
                 .then(function(session) {
-                    console.log('Cast session started successfully');
-                    document.getElementById('status').textContent = 'Connected to Chromecast!';
+                    console.log('Cast session started successfully:', session);
+                    updateStatus('Connected to Chromecast!');
                 })
                 .catch(function(error) {
                     console.error('Error starting cast session:', error);
-                    document.getElementById('status').textContent = 'Failed to connect: ' + error.message;
+                    updateStatus('Failed to connect: ' + (error.message || 'Unknown error'));
                 });
+        }
+
+        function updateStatus(message) {
+            document.getElementById('status').textContent = message;
         }
     </script>
 </head>
