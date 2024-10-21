@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Improved Diagnostic Cast Sender</title>
-    <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
+    <title>Refined Diagnostic Cast Sender</title>
+    <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js"></script>
     <script>
         let castContext;
+        const applicationId = 'ED052386'; // Your custom receiver app ID
 
         window['__onGCastApiAvailable'] = function(isAvailable) {
             console.log('Cast API available:', isAvailable);
@@ -20,18 +21,15 @@
 
         function initializeCastApi() {
             try {
-                castContext = cast.framework.CastContext.getInstance();
-                castContext.setOptions({
-                    receiverApplicationId: 'ED052386', // Your custom receiver app ID
+                cast.framework.CastContext.getInstance().setOptions({
+                    receiverApplicationId: applicationId,
                     autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
                 });
                 console.log('Cast API initialized successfully');
                 updateStatus('Cast API initialized. Ready to connect.');
                 
-                castContext.addEventListener(cast.framework.CastContextEventType.CAST_STATE_CHANGED, function(event) {
-                    console.log('Cast state changed:', event.castState);
-                    updateStatus('Cast state changed: ' + event.castState);
-                });
+                castContext = cast.framework.CastContext.getInstance();
+                castContext.addEventListener(cast.framework.CastContextEventType.CAST_STATE_CHANGED, castStateListener);
 
                 // Start listening for devices immediately
                 checkDeviceAvailability();
@@ -39,6 +37,12 @@
                 console.error('Error initializing Cast API:', error);
                 updateStatus('Failed to initialize Cast API: ' + error.message);
             }
+        }
+
+        function castStateListener(event) {
+            console.log('Cast state changed:', event.castState);
+            updateStatus('Cast state changed: ' + event.castState);
+            checkDeviceAvailability();
         }
 
         function requestSession() {
@@ -72,7 +76,7 @@
 
         function initiateManualCast() {
             console.log('Attempting manual cast...');
-            const sessionRequest = new chrome.cast.SessionRequest(castContext.getOptions().receiverApplicationId);
+            const sessionRequest = new chrome.cast.SessionRequest(applicationId);
             chrome.cast.requestSession(
                 function(session) {
                     console.log('Manual cast successful:', session);
@@ -93,7 +97,7 @@
     </script>
 </head>
 <body>
-    <h1>Improved Diagnostic Google Cast Sender</h1>
+    <h1>Refined Diagnostic Google Cast Sender</h1>
     <button onclick="requestSession()">Connect to Chromecast</button>
     <button onclick="checkDeviceAvailability()">Check Device Availability</button>
     <button onclick="initiateManualCast()">Try Manual Cast</button>
