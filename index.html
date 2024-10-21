@@ -23,8 +23,7 @@
                 autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
             });
 
-            const castButton = document.getElementById('castButton');
-            castButton.addEventListener('click', castHello);
+            
         }
 
         function castHello() {
@@ -34,6 +33,12 @@
                 castSession.sendMessage('urn:x-cast:com.example.castapp', message);
             }
         }
+
+
+        const castButton = document.getElementById('castButton');
+            castButton.addEventListener('click', castHello);
+
+            
     </script>
 </body>
 </html>
