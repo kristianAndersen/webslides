@@ -19,6 +19,26 @@ window['__onGCastApiAvailable'] = function(isAvailable) {
     }
 };
 
+const RockAndRollMotherFuckers = async (event) => {
+    
+    console.log("connected");
+    
+    castSession = cast.framework.CastContext.getInstance().getCurrentSession();
+
+}
+const  initializeCastApi = () => {
+  let applicationId = 'ED052386';
+  
+  cast.framework.CastContext.getInstance().setOptions({
+    receiverApplicationId: applicationId,
+    autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
+  });
+  
+  cast.framework.CastContext.getInstance().addEventListener(cast.framework.CastContextEventType.SESSION_STATE_CHANGED, RockAndRollMotherFuckers);
+};
+
+
+/*
 function initializeCastApi() {
     castContext = cast.framework.CastContext.getInstance();
     castContext.setOptions({
@@ -40,7 +60,7 @@ function initializeCastApi() {
         }
     );
 }
-
+*/
 function castHello() {
     const castSession = castContext.getCurrentSession();
     if (castSession) {
