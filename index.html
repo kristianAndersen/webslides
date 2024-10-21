@@ -9,6 +9,7 @@
     <h1>Chrome Cast Sender</h1>
     <button id="castButton">Start Casting</button>
     <div id="displayInfo"></div>
+    <div id="status"></div>
 
     <script>
         let session;
@@ -27,29 +28,71 @@
             });
 
             const castButton = document.getElementById('castButton');
+            const statusDiv = document.getElementById('status');
+
             castButton.addEventListener('click', () => {
                 if (session) {
-                    session.leave();
+                    endCurrentSession();
                 } else {
-                    castContext.requestSession().then(
-                        function(s) {
-                            session = s;
-                            session.addMessageListener('urn:x-cast:com.example.castmessage', function(namespace, message) {
-                                const displayInfo = JSON.parse(message);
-                                document.getElementById('displayInfo').innerHTML = `
-                                    <p>Width: ${displayInfo.width}px</p>
-                                    <p>Height: ${displayInfo.height}px</p>
-                                    <p>Aspect Ratio: ${displayInfo.aspectRatio}</p>
-                                `;
-                            });
-                            session.sendMessage('urn:x-cast:com.example.castmessage', 'REQUEST_DISPLAY_INFO');
-                        },
-                        function(e) {
-                            console.error('Error:', e);
-                        }
-                    );
+                    statusDiv.textContent = 'Attempting to connect...';
+                    castContext.requestSession()
+                        .then(handleSessionSuccess)
+                        .catch(handleSessionError);
                 }
             });
+
+            // Listen for changes in the cast state
+            castContext.addEventListener(cast.framework.CastContextEventType.CAST_STATE_CHANGED, (event) => {
+                switch(event.castState) {
+                    case cast.framework.CastState.NO_DEVICES_AVAILABLE:
+                        statusDiv.textContent = 'No casting devices available';
+                        break;
+                    case cast.framework.CastState.NOT_CONNECTED:
+                        statusDiv.textContent = 'Not connected to a casting device';
+                        break;
+                    case cast.framework.CastState.CONNECTED:
+                        statusDiv.textContent = 'Connected to casting device';
+                        break;
+                }
+            });
+        }
+
+        function handleSessionSuccess(s) {
+            session = s;
+            document.getElementById('status').textContent = 'Connected successfully';
+            session.addMessageListener('urn:x-cast:com.example.castmessage', function(namespace, message) {
+                const displayInfo = JSON.parse(message);
+                document.getElementById('displayInfo').innerHTML = `
+                    <p>Width: ${displayInfo.width}px</p>
+                    <p>Height: ${displayInfo.height}px</p>
+                    <p>Aspect Ratio: ${displayInfo.aspectRatio}</p>
+                `;
+            });
+            session.sendMessage('urn:x-cast:com.example.castmessage', 'REQUEST_DISPLAY_INFO');
+        }
+
+        function handleSessionError(err) {
+            console.error('Error:', err);
+            let errorMessage = 'Failed to start casting session';
+            if (err.code === 'cancel') {
+                errorMessage = 'Casting was cancelled';
+            }
+            document.getElementById('status').textContent = errorMessage;
+        }
+
+        function endCurrentSession() {
+            if (session) {
+                session.leave()
+                    .then(() => {
+                        session = null;
+                        document.getElementById('status').textContent = 'Disconnected from casting device';
+                        document.getElementById('displayInfo').innerHTML = '';
+                    })
+                    .catch((err) => {
+                        console.error('Error ending session:', err);
+                        document.getElementById('status').textContent = 'Error disconnecting from casting device';
+                    });
+            }
         }
     </script>
 </body>
