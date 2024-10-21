@@ -26,6 +26,16 @@
                 autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
             });
 
+            castContext.addEventListener(cast.framework.CastContextEventType.SESSION_STATE_CHANGED, (event) => {
+            console.log('Session state changed:', event.sessionState);
+            if (event.sessionState === cast.framework.SessionState.SESSION_STARTED) {
+                session = event.session;
+                requestDisplayInfo(session); // Only send the message when session is connected
+            }
+        });
+
+
+
             const castButton = document.getElementById('castButton');
             const statusDiv = document.getElementById('status');
 
@@ -86,16 +96,22 @@
 
 
         function requestDisplayInfo(session) {
-                if (session) {
-                    session.sendMessage('urn:x-cast:com.example.castmessage', 'REQUEST_DISPLAY_INFO')
-                        .then(() => {
-                            console.log('Message sent successfully');
-                        })
-                        .catch(error => console.error('Error sending message:', error));
-                } else {
-                    console.error('Session is null, cannot send message.');
-                }
+            if (session) {
+                console.log('Sending message: REQUEST_DISPLAY_INFO');
+                session.sendMessage('urn:x-cast:com.example.castmessage', 'REQUEST_DISPLAY_INFO')
+                    .then(() => {
+                        console.log('Message sent successfully');
+                    })
+                    .catch(error => {
+                        console.error('Error sending message:', error);
+                        // Log details for better debugging
+                        console.error('Session state:', session.status);
+                        console.error('Error details:', error.message, error.stack);
+                    });
+            } else {
+                console.error('Session is null or not connected, cannot send message.');
             }
+        }
 
 
 
