@@ -3,72 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Cast Sender</title>
+    <title>Cast Sender</title>
+    <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js"></script>
+    <script>
+        // Initialize Cast Framework
+        window['__onGCastApiAvailable'] = function(isAvailable) {
+            if (isAvailable) {
+                initializeCast();
+            }
+        };
 
+        let castSession;
+
+        function initializeCast() {
+            const castContext = cast.framework.CastContext.getInstance();
+            castContext.setOptions({
+                receiverApplicationId: 'ED052386', // Replace with your custom receiver app ID
+                autoJoinPolicy: chrome.cast.AutoJoinPolicy.TAB_AND_ORIGIN_SCOPED
+            });
+
+            document.getElementById('castButton').addEventListener('click', startCasting);
+        }
+
+        function startCasting() {
+            const castContext = cast.framework.CastContext.getInstance();
+            castContext.requestSession().then(function(session) {
+                castSession = session;
+                // Send a "Hello" message to the receiver
+                sendMessage('Hello');
+            }).catch(function(error) {
+                console.error('Error starting cast session:', error);
+            });
+        }
+
+        function sendMessage(message) {
+            if (castSession) {
+                castSession.sendMessage('urn:x-cast:com.nokbok.helloworld', message)
+                    .then(() => console.log('Message sent: ' + message))
+                    .catch((error) => console.error('Error sending message:', error));
+            }
+        }
+    </script>
 </head>
 <body>
     <h1>Google Cast Sender</h1>
-    <button id="castButton">Cast</button>
-
-    <script>
-        let castContext;
-
-
-const RockAndRollMotherFuckers = async (event) => {
-    
-    console.log("connected");
-    
-    castSession = cast.framework.CastContext.getInstance().getCurrentSession();
-
-}
-const  initializeCastApi = () => {
-  console.log("calling stuff and things");
-    const  applicationId = 'ED052386';
-  
-  cast.framework.CastContext.getInstance().setOptions({
-    receiverApplicationId: applicationId,
-    autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
-  });
-  
-  cast.framework.CastContext.getInstance().addEventListener(cast.framework.CastContextEventType.SESSION_STATE_CHANGED, RockAndRollMotherFuckers);
-};
-
-
-
-window['__onGCastApiAvailable'] = function(isAvailable) {
-  if (isAvailable) {
-    initializeCastApi();
-  }else{
-      console.log('Cast API is not available');
-  }
-};
-
-/*
-function initializeCastApi() {
-    castContext = cast.framework.CastContext.getInstance();
-    castContext.setOptions({
-        receiverApplicationId: 'ED052386',
-        autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
-    });
-
-    const castButton = document.getElementById('castButton');
-    castButton.addEventListener('click', castHello);
-
-    // Listen for session state changes
-    castContext.addEventListener(
-        cast.framework.CastContextEventType.SESSION_STATE_CHANGED,
-        function(event) {
-            console.log('Session state changed:', event.sessionState);
-            if (event.sessionState === cast.framework.SessionState.SESSION_STARTED) {
-                castHello();
-            }
-        }
-    );
-}
-*/
-
-    </script>
-
-<script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
+    <button id="castButton">Cast "Hello"</button>
 </body>
 </html>

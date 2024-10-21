@@ -3,26 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Cast Receiver</title>
+    <title>Cast Receiver</title>
     <script src="//www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
-</head>
-<body>
-    <h1 id="message">Waiting for message...</h1>
-
     <script>
         const context = cast.framework.CastReceiverContext.getInstance();
-        const options = new cast.framework.CastReceiverOptions();
+        
+        context.addCustomMessageListener('urn:x-cast:com.nokbok.helloworld', (event) => {
+            const message = event.data; // Receives the "Hello" message
+            console.log('Message received from sender:', message);
 
-        options.customNamespaces = {
-            'urn:x-cast:com.example.castapp': cast.framework.system.MessageType.STRING
-        };
-
-        context.addCustomMessageListener('urn:x-cast:com.gronkBonk.castapp', function(event) {
-            const message = event.data;
-            document.getElementById('message').textContent = message + ' World!';
+            // Respond by adding "World" to the message
+            const fullMessage = message + " World";
+            
+            // Display the result in the HTML
+            document.getElementById('message').textContent = fullMessage;
         });
 
-        context.start(options);
+        context.start(); // Start the Cast Receiver
     </script>
+</head>
+<body>
+    <h1>Receiver Display</h1>
+    <div id="message">Waiting for a message...</div>
 </body>
 </html>
