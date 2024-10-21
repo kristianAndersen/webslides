@@ -2,7 +2,6 @@
 <html>
 <head>
     <title>Chrome Cast Sender with Display Info</title>
-    <script type="text/javascript" src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
     <link rel="icon" href="data:,">
 </head>
 <body>
@@ -21,23 +20,18 @@
             console.log("Cast API initialized");
   
         };     
-/*
-        let castSession = cast.framework.CastContext.getInstance().getCurrentSession();
-            castSession.sendMessage("namespace", "message");
 
-        // Add an event listener to the defined namespace channel
-        castSession.addMessageListener("namespace", (namespace, message) => {
-            console.log(namespace, message);
-        });
-*/
+
         window['__onGCastApiAvailable'] = function(isAvailable) {
-        if (isAvailable) {
-            initializeCastApi();
-        }
+            if (isAvailable) {
+                initializeCastApi();
+            }
         };
 
 
 
     </script>
+<script type="text/javascript" src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
+
 </body>
 </html>
