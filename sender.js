@@ -35,8 +35,10 @@ const sender=()=>{
 
 
     const setupEventListeners=()=> {
+        
+        const castContext = cast.framework.CastContext.getInstance();
 
-        this.castContext.addEventListener(
+        castContext.addEventListener(
             cast.framework.CastContextEventType.SESSION_STATE_CHANGED,
             (event) => {
               if (event.sessionState === cast.framework.SessionState.SESSION_STARTED) {
