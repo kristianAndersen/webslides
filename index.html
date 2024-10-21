@@ -27,7 +27,8 @@ const RockAndRollMotherFuckers = async (event) => {
 
 }
 const  initializeCastApi = () => {
-  let applicationId = 'ED052386';
+  
+    const  applicationId = 'ED052386';
   
   cast.framework.CastContext.getInstance().setOptions({
     receiverApplicationId: applicationId,
@@ -37,6 +38,11 @@ const  initializeCastApi = () => {
   cast.framework.CastContext.getInstance().addEventListener(cast.framework.CastContextEventType.SESSION_STATE_CHANGED, RockAndRollMotherFuckers);
 };
 
+window['__onGCastApiAvailable'] = function(isAvailable) {
+  if (isAvailable) {
+    initializeCastApi();
+  }
+};
 
 /*
 function initializeCastApi() {
@@ -61,20 +67,7 @@ function initializeCastApi() {
     );
 }
 */
-function castHello() {
-    const castSession = castContext.getCurrentSession();
-    if (castSession) {
-        const message = 'Hello';
-        castSession.sendMessage('urn:x-cast:com.gronkBonk.castapp', message)
-            .then(() => console.log('Message sent successfully'))
-            .catch((error) => console.error('Error sending message:', error));
-    } else {
-        console.log('No active session. Starting a new session...');
-        castContext.requestSession()
-            .then(() => console.log('Cast session requested'))
-            .catch((error) => console.error('Error requesting cast session:', error));
-    }
-}
+
     </script>
 </body>
 </html>
