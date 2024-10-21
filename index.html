@@ -11,16 +11,37 @@
     <div id="status"></div>
 
     <script>
+        const castContext = cast.framework.CastContext.getInstance();
+        let session = null;
 
         const initializeCastApi = ()=> {
-            cast.framework.CastContext.getInstance().setOptions({
-                receiverApplicationId: 'ED052386',
-                autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
-            });
-            console.log("Cast API initialized");
-  
-        };     
+                castContext.setOptions({
+                    receiverApplicationId: 'ED052386',
+                    autoJoinPolicy: chrome.cast.AutoJoinPolicy.TAB_AND_ORIGIN_SCOPED
 
+                });
+
+        };
+
+
+castContext.addEventListener(
+    cast.framework.CastContextEventType.SESSION_STATE_CHANGED,
+    (event) => {
+      if (event.sessionState === cast.framework.SessionState.SESSION_STARTED) {
+        console.log('Session started successfully!');
+        session = this.castContext.getCurrentSession();
+      } else if (event.sessionState === cast.framework.SessionState.SESSION_ENDED) {
+        console.log('Session ended.');
+        session = null;
+      }
+    }
+  );
+
+        
+
+
+
+    
 
         window['__onGCastApiAvailable'] = function(isAvailable) {
             if (isAvailable) {
