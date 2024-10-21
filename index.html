@@ -23,14 +23,17 @@
         function initializeCastApi() {
             const castContext = cast.framework.CastContext.getInstance();
             castContext.setOptions({
-                receiverApplicationId: chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID,
+            
+                receiverApplicationId: 'ED052386',
                 autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
+                
             });
 
             castContext.addEventListener(cast.framework.CastContextEventType.SESSION_STATE_CHANGED, (event) => {
             console.log('Session state changed:', event.sessionState);
             if (event.sessionState === cast.framework.SessionState.SESSION_STARTED) {
-                session = event.session;
+           
+                session = cast.framework.CastContext.getInstance().getCurrentSession();
               //  requestDisplayInfo(session); // Only send the message when session is connected
             }
         });
