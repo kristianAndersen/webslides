@@ -1,26 +1,18 @@
 <!DOCTYPE html>
-
-
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Custom Receiver</title>
-  <script src="https://www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
-  <script>
-    const context = cast.framework.CastReceiverContext.getInstance();
-    const playerManager = context.getPlayerManager();
-
-    // When a message is received from the sender
-    context.addCustomMessageListener('urn:x-cast:com.example.helloworld', (event) => {
-      document.getElementById('message').textContent = event.data;
-    });
-
-    context.start();
-  </script>
-</head>
-<body>
-  <h1>Custom Receiver</h1>
-  <p id="message">Waiting for a message...</p>
-</body>
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="stylesheet" href="css/receiver.css" />
+        <title>castDeck</title>
+    </head>
+    <body>
+        <div id="backdrop">
+            castDeck
+            <div id="loader"></div>
+        </div>
+        <div id="log"></div>
+        <div id="flash"><span></span></div>
+        <script src="//www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
+        <script src="js/receiverApplication.js"></script>
+    </body>
 </html>
