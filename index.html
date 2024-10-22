@@ -1,143 +1,64 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Web Slideshow Sender</title>
-    <meta name="google-site-verification" content="_XvmZoCUOo_pqbKc2pqZSsQQZXhUm73PJl0CU0o-hDU" />
-    <!-- Load the Cast APIs -->
-    <script type="text/javascript" src="//www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
- 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 0 20px;
-        }
-        .url-list {
-            margin: 20px 0;
-        }
-        .url-input {
-            display: flex;
-            margin-bottom: 10px;
-            gap: 10px;
-        }
-        .url-input input {
-            flex-grow: 1;
-            padding: 8px;
-        }
-        button {
-            padding: 8px 16px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        button:disabled {
-            background-color: #ccc;
-        }
-        .controls {
-            margin-top: 20px;
-        }
-        #castStatus {
-            margin-top: 10px;
-            padding: 10px;
-            background-color: #f8f9fa;
-            border-radius: 4px;
-        }
-        google-cast-launcher {
-    display: block;
-    margin: 20px;
-}
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cast Sender</title>
+  <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js"></script>
+  <script>
+    let session = null;
+
+    // Initialize the Cast API
+    window['__onGCastApiAvailable'] = function(isAvailable) {
+      if (isAvailable) {
+        initializeCast();
+      }
+    };
+
+    function initializeCast() {
+      const sessionRequest = new chrome.cast.SessionRequest('ED052386');
+      const apiConfig = new chrome.cast.ApiConfig(sessionRequest, sessionListener, receiverListener);
+      chrome.cast.initialize(apiConfig, onInitSuccess, onError);
+    }
+
+    function sessionListener(e) {
+      session = e;
+    }
+
+    function receiverListener(e) {
+      if (e === chrome.cast.ReceiverAvailability.AVAILABLE) {
+        document.getElementById('castButton').style.display = 'block';
+      }
+    }
+
+    function onInitSuccess() {
+      console.log('Cast initialization successful');
+    }
+
+    function onError(message) {
+      console.log('Error:', message);
+    }
+
+    function sendMessage() {
+      if (session) {
+        session.sendMessage('urn:x-cast:com.example.helloworld', 'Hello World', onSuccess, onError);
+      }
+    }
+
+    function onSuccess() {
+      console.log('Message sent successfully');
+    }
+  </script>
 </head>
 <body>
-    <h1>Web Slideshow Sender</h1>
-    <div id="castStatus">Cast status: Not connected</div>
-    
-    <div class="url-list" id="urlList">
-        <div class="url-input">
-            <input type="text" placeholder="Enter URL (e.g., https://example.com)">
-            <button onclick="removeUrl(this)">Remove</button>
-        </div>
-    </div>
+  <h1>Cast Sender</h1>
+  <button id="castButton" onclick="chrome.cast.requestSession(onRequestSessionSuccess, onError)">Start Casting</button>
+  <button onclick="sendMessage()">Send Hello World</button>
 
-    <button onclick="addUrlInput()">Add URL</button>
-
-    <div class="controls">
-        <label>
-            Display time per page (seconds):
-            <input type="number" id="displayTime" value="5" min="1" max="300">
-        </label>
-        <google-cast-launcher></google-cast-launcher>
-        <button id="startCast">Start Casting</button>
-        <button id="stopCast">Stop Casting</button>
-    </div>
-
-    <script>
-  
-
-    
-    
-document.addEventListener('DOMContentLoaded', function() {
-    
-    window['__onGCastApiAvailable'] = function(isAvailable) {
-        if (isAvailable) {
-            initializeCastApi();
-        }
-    };
-    
-
-   const initializeCastApi = ()=> {
-  cast.framework.CastContext.getInstance().setOptions({
-    receiverApplicationId: 'ED052386',
-    autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
-  });
-
-};
-
-let  castSession = cast.framework.CastContext.getInstance().getCurrentSession();
-
-console.log(castSession)
-
-  // Add event listeners for the play and pause buttons
-  playButton.addEventListener('click', function() {
-    const session = castContext.getCurrentSession();
-    if (session) {
-      const media = session.getMediaSession();
-      if (media) {
-        media.play();
-      }
+  <script>
+    function onRequestSessionSuccess(e) {
+      session = e;
     }
-  });
-
-  pauseButton.addEventListener('click', function() {
-    const session = castContext.getCurrentSession();
-    if (session) {
-      const media = session.getMediaSession();
-      if (media) {
-        media.pause();
-      }
-    }
-  });
-});
-
-// Make sure the Cast SDK is loaded properly
-window.onload = function() {
-    // Check if the Cast SDK script is loaded
-    const castScript = document.querySelector('script[src*="cast_sender.js"]');
-    if (!castScript) {
-        const script = document.createElement('script');
-        script.src = 'https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1';
-        script.async = true;
-        document.head.appendChild(script);
-    }
-    
-};
-    
-   
-
-
-    </script>
+  </script>
 </body>
 </html>

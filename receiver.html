@@ -1,44 +1,24 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Web Slideshow Receiver</title>
-    <script type="text/javascript" src="//www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
-    <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-        }
-        .iframe-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            transition: opacity 1s ease-in-out;
-        }
-        .iframe-container.active {
-            opacity: 1;
-        }
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Custom Receiver</title>
+  <script src="https://www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
+  <script>
+    const context = cast.framework.CastReceiverContext.getInstance();
+    const playerManager = context.getPlayerManager();
+
+    // When a message is received from the sender
+    context.addCustomMessageListener('urn:x-cast:com.example.helloworld', (event) => {
+      document.getElementById('message').textContent = event.data;
+    });
+
+    context.start();
+  </script>
 </head>
 <body>
-    <div id="iframeContainer"></div>
-
-    <script>const context = cast.framework.CastReceiverContext.getInstance();
-        const playerManager = context.getPlayerManager();
-        
-        // Optional: Add custom player event listeners or message bus handling
-        
-        context.start();
-    </script>
+  <h1>Custom Receiver</h1>
+  <p id="message">Waiting for a message...</p>
 </body>
 </html>
