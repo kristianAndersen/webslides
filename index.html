@@ -90,8 +90,17 @@
                     });
 
                     // Add Cast button
-                    const castButton = new google.cast.framework.CastButtonElement();
+                        // Create cast button using cast.framework
+                        const castButton = document.createElement('button');
+                    castButton.className = 'cast-button';
+                    castButton.onclick = () => {
+                        const context = cast.framework.CastContext.getInstance();
+                        if (context.getCastState() !== cast.framework.CastState.CONNECTED) {
+                            context.requestSession();
+                        }
+                    };
                     document.body.insertBefore(castButton, document.body.firstChild);
+
 
                     // Add event listeners
                     cast.framework.CastContext.getInstance().addEventListener(
