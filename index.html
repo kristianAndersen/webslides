@@ -128,12 +128,14 @@
 }
 
 function handleSessionStateChange(event) {
+    console.log('Event:', event);
+
     console.log('Session state:', event.sessionState);
     const session = cast.framework.CastContext.getInstance().getCurrentSession();
     const startButton = document.getElementById('startCast');
     const stopButton = document.getElementById('stopCast');
 
-    console.log(event.sessionState)
+ 
     
     startButton.disabled = false;
     stopButton.disabled = false;
@@ -194,7 +196,7 @@ function handleSessionStateChange(event) {
                     displayTime: displayTimeMs
                 });
             }else{
-                console.loog('buu');
+                console.log('buu');
             }
         }
 
