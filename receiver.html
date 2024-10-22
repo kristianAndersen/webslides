@@ -1,20 +1,126 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <script src="//www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
+    <title>Web Slideshow Receiver</title>
+    <script type="text/javascript" src="//www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        .iframe-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+        .iframe-container.active {
+            opacity: 1;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
 </head>
 <body>
-    <cast-media-player></cast-media-player>
+    <div id="iframeContainer"></div>
+
     <script>
-        const context = cast.framework.CastReceiverContext.getInstance();
-        const playerManager = context.getPlayerManager();
+        class WebSlideshow {
+            constructor() {
+                this.urls = [];
+                this.currentIndex = 0;
+                this.displayTime = 5000; // Default 5 seconds
+                this.container = document.getElementById('iframeContainer');
+                this.activeFrame = null;
+                this.nextFrame = null;
+                
+                this.initializeCastReceiver();
+            }
 
-        // Optionally, add a custom message listener
-        context.addCustomMessageListener('urn:x-cast:com.your.namespace', function(event) {
-            console.log('Received message: ' + JSON.stringify(event.data));
-        });
+            initializeCastReceiver() {
+                const context = cast.framework.CastReceiverContext.getInstance();
+                const options = new cast.framework.CastReceiverOptions();
+                options.disableIdleTimeout = true;
 
-        context.start();
+                // Create custom message channel
+                context.addCustomMessageListener('urn:x-cast:com.webslideshow', (event) => {
+                    const message = event.data;
+                    if (message.urls) {
+                        this.urls = message.urls;
+                        this.displayTime = message.displayTime || 5000;
+                        this.startSlideshow();
+                    }
+                });
+
+                context.start(options);
+            }
+
+            createIframeContainer(url) {
+                const container = document.createElement('div');
+                container.className = 'iframe-container';
+                const iframe = document.createElement('iframe');
+                iframe.src = url;
+                container.appendChild(iframe);
+                return container;
+            }
+
+            async startSlideshow() {
+                if (this.urls.length === 0) return;
+                
+                // Clear existing content
+                this.container.innerHTML = '';
+                this.currentIndex = 0;
+
+                // Create and show first frame
+                this.activeFrame = this.createIframeContainer(this.urls[0]);
+                this.container.appendChild(this.activeFrame);
+                this.activeFrame.classList.add('active');
+
+                this.runSlideshow();
+            }
+
+            async runSlideshow() {
+                while (true) {
+                    await new Promise(resolve => setTimeout(resolve, this.displayTime));
+                    
+                    // Calculate next index
+                    const nextIndex = (this.currentIndex + 1) % this.urls.length;
+                    
+                    // Create and prepare next frame
+                    this.nextFrame = this.createIframeContainer(this.urls[nextIndex]);
+                    this.container.appendChild(this.nextFrame);
+                    
+                    // Wait a bit for the iframe to load
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    
+                    // Transition
+                    this.activeFrame.classList.remove('active');
+                    this.nextFrame.classList.add('active');
+                    
+                    // Cleanup after transition
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    this.container.removeChild(this.activeFrame);
+                    
+                    // Update references
+                    this.activeFrame = this.nextFrame;
+                    this.currentIndex = nextIndex;
+                }
+            }
+        }
+
+        // Initialize the slideshow when the page loads
+        window.onload = () => {
+            window.slideshow = new WebSlideshow();
+        };
     </script>
 </body>
 </html>

@@ -1,247 +1,163 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cast Sender with Device Scanning</title>
-    <!-- Load Cast Framework -->
+    <title>Web Slideshow Sender</title>
+    <!-- Load the Cast APIs -->
     <script type="text/javascript" src="//www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
-    <script>
-        let castContext = null;
-        const applicationId =  'ED052386'//'CC1AD845'; // Using default receiver for testing
-
-        window['__onGCastApiAvailable'] = function(isAvailable, error) {
-            if (isAvailable) {
-                console.log('Cast API is available');
-                initializeCastFramework();
-            } else {
-                console.error('Cast API is not available:', error);
-                updateStatus('Cast API not available: ' + error);
-            }
-        };
-
-        async function initializeCastFramework() {
-            try {
-                // Wait for cast framework to be ready
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                
-                // Initialize cast framework
-                castContext = cast.framework.CastContext.getInstance();
-                
-                // Set options
-                castContext.setOptions({
-                    receiverApplicationId: applicationId,
-                    autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED,
-                    language: 'en-US',
-                    resumeSavedSession: false
-                });
-
-                console.log('Cast Framework initialized');
-                updateStatus('Cast Framework initialized');
-
-                // Add cast state listener
-                castContext.addEventListener(
-                    cast.framework.CastContextEventType.CAST_STATE_CHANGED,
-                    event => {
-                        const state = event.castState || castContext.getCastState();
-                        console.log('Cast State Changed:', state);
-                        updateStatus('Cast State: ' + state);
-                        updateDeviceList();
-                    }
-                );
-
-                // Add session state listener
-                castContext.addEventListener(
-                    cast.framework.CastContextEventType.SESSION_STATE_CHANGED,
-                    event => {
-                        console.log('Session State Changed:', event.sessionState);
-                        updateStatus('Session State: ' + event.sessionState);
-                    }
-                );
-
-                // Initial device check
-                updateDeviceList();
-
-            } catch (error) {
-                console.error('Error initializing Cast Framework:', error);
-                updateStatus('Init Error: ' + error.message);
-            }
-        }
-
-        function updateDeviceList() {
-            const state = castContext ? castContext.getCastState() : 'CONTEXT_NOT_INITIALIZED';
-            const stateElement = document.getElementById('castState');
-            stateElement.textContent = 'Cast State: ' + state;
-
-            switch(state) {
-                case cast.framework.CastState.NO_DEVICES_AVAILABLE:
-                    stateElement.style.color = 'red';
-                    break;
-                case cast.framework.CastState.NOT_CONNECTED:
-                    stateElement.style.color = 'orange';
-                    break;
-                case cast.framework.CastState.CONNECTED:
-                    stateElement.style.color = 'green';
-                    break;
-                default:
-                    stateElement.style.color = 'black';
-            }
-        }
-
-        async function startCasting() {
-            try {
-                if (!castContext) {
-                    throw new Error('Cast Framework not initialized');
-                }
-
-                console.log('Attempting to start casting...');
-                updateStatus('Starting cast...');
-
-                const currentSession = castContext.getCurrentSession();
-                if (currentSession) {
-                    console.log('Already connected to a session');
-                    updateStatus('Already connected');
-                    return;
-                }
-
-                const session = await castContext.requestSession();
-                console.log('Cast session created:', session);
-                updateStatus('Connected to Chromecast!');
-
-            } catch (error) {
-                console.error('Casting failed:', error);
-                updateStatus('Casting failed: ' + (error.message || 'Unknown error'));
-            }
-        }
-
-        function updateStatus(message) {
-            console.log('Status:', message);
-            document.getElementById('status').textContent = message;
-        }
-    </script>
     <style>
-        .button {
-            padding: 10px 20px;
-            margin: 5px;
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+        .url-list {
+            margin: 20px 0;
+        }
+        .url-input {
+            display: flex;
+            margin-bottom: 10px;
+            gap: 10px;
+        }
+        .url-input input {
+            flex-grow: 1;
+            padding: 8px;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
             cursor: pointer;
         }
-        .status {
-            margin: 10px 0;
+        button:disabled {
+            background-color: #ccc;
+        }
+        .controls {
+            margin-top: 20px;
+        }
+        #castStatus {
+            margin-top: 10px;
             padding: 10px;
-            border: 1px solid #ccc;
+            background-color: #f8f9fa;
+            border-radius: 4px;
         }
     </style>
 </head>
 <body>
-    <h1>Cast Sender with Device Scanning</h1>
-    <button class="button" onclick="startCasting()">Start Casting</button>
-    <button class="button" onclick="updateDeviceList()">Refresh Device Status</button>
-    <div id="castState" class="status">Cast State: Not initialized</div>
-    <div id="status" class="status">Initializing...</div>
-</body>
-</html>
+    <h1>Web Slideshow Sender</h1>
+    <div id="castStatus">Cast status: Not connected</div>
+    
+    <div class="url-list" id="urlList">
+        <div class="url-input">
+            <input type="text" placeholder="Enter URL (e.g., https://example.com)">
+            <button onclick="removeUrl(this)">Remove</button>
+        </div>
+    </div>
 
+    <button onclick="addUrlInput()">Add URL</button>
 
+    <div class="controls">
+        <label>
+            Display time per page (seconds):
+            <input type="number" id="displayTime" value="5" min="1" max="300">
+        </label>
+        <button id="startCast" onclick="startCasting()" disabled>Start Casting</button>
+        <button id="stopCast" onclick="stopCasting()" disabled>Stop Casting</button>
+    </div>
 
-<!--<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Diagnostic Cast Sender</title>
-    <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
     <script>
-        window['__onGCastApiAvailable'] = function(isAvailable) {
-            console.log('Cast API available:', isAvailable);
-            if (isAvailable) {
-                initializeCastApi();
-            } else {
-                console.error('Cast API is not available');
-                updateStatus('Cast API is not available');
-            }
+        const APPLICATION_ID = 'ED052386';
+        let castSession = null;
+
+        window.onload = function() {
+            initializeCastApi();
         };
 
         function initializeCastApi() {
-            try {
-                const context = cast.framework.CastContext.getInstance();
-                console.log('Cast Context:', context);
-                context.setOptions({
-                    receiverApplicationId: 'ED052386', // Your custom receiver app ID
-                    autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
-                });
-                console.log('Cast API initialized successfully');
-                updateStatus('Cast API initialized. Ready to connect.');
-                
-                console.log('Available Cast APIs:', Object.keys(chrome.cast));
-                console.log('CastContext methods:', Object.getOwnPropertyNames(Object.getPrototypeOf(context)));
+            cast.framework.CastContext.getInstance().setOptions({
+                receiverApplicationId: APPLICATION_ID,
+                autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
+            });
 
-                const castState = context.getCastState();
-                console.log('Cast State:', castState);
-                updateStatus('Current Cast State: ' + castState);
+            cast.framework.CastContext.getInstance().addEventListener(
+                cast.framework.CastContextEventType.SESSION_STATE_CHANGED,
+                handleSessionStateChange
+            );
+        }
 
-                context.addEventListener(cast.framework.CastContextEventType.CAST_STATE_CHANGED, function(event) {
-                    console.log('Cast state changed:', event.castState);
-                    updateStatus('Cast state changed: ' + event.castState);
-                });
-            } catch (error) {
-                console.error('Error initializing Cast API:', error);
-                updateStatus('Failed to initialize Cast API: ' + error.message);
+        function handleSessionStateChange(event) {
+            const session = cast.framework.CastContext.getInstance().getCurrentSession();
+            const statusDiv = document.getElementById('castStatus');
+            const startButton = document.getElementById('startCast');
+            const stopButton = document.getElementById('stopCast');
+
+            switch(event.sessionState) {
+                case cast.framework.SessionState.NO_SESSION:
+                    statusDiv.textContent = 'Cast status: Not connected';
+                    startButton.disabled = true;
+                    stopButton.disabled = true;
+                    break;
+                case cast.framework.SessionState.CONNECTED:
+                    statusDiv.textContent = 'Cast status: Connected';
+                    castSession = session;
+                    startButton.disabled = false;
+                    stopButton.disabled = false;
+                    break;
+                case cast.framework.SessionState.CONNECTING:
+                    statusDiv.textContent = 'Cast status: Connecting...';
+                    startButton.disabled = true;
+                    stopButton.disabled = true;
+                    break;
             }
         }
 
-        function requestSession() {
-            const castContext = cast.framework.CastContext.getInstance();
-            console.log('Requesting session...');
-            castContext.requestSession()
-                .then(function(session) {
-                    console.log('Cast session started successfully:', session);
-                    updateStatus('Connected to Chromecast!');
-                })
-                .catch(function(error) {
-                    console.error('Error starting cast session:', error);
-                    console.log('Error details:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
-                    updateStatus('Failed to connect: ' + (error.message || 'Unknown error'));
+        function addUrlInput() {
+            const urlList = document.getElementById('urlList');
+            const urlInput = document.createElement('div');
+            urlInput.className = 'url-input';
+            urlInput.innerHTML = `
+                <input type="text" placeholder="Enter URL (e.g., https://example.com)">
+                <button onclick="removeUrl(this)">Remove</button>
+            `;
+            urlList.appendChild(urlInput);
+        }
+
+        function removeUrl(button) {
+            button.parentElement.remove();
+        }
+
+        function getUrls() {
+            const inputs = document.querySelectorAll('.url-input input');
+            return Array.from(inputs)
+                .map(input => input.value.trim())
+                .filter(url => url !== '');
+        }
+
+        function startCasting() {
+            const urls = getUrls();
+            if (urls.length === 0) {
+                alert('Please add at least one URL');
+                return;
+            }
+
+            const displayTimeSeconds = document.getElementById('displayTime').value;
+            const displayTimeMs = displayTimeSeconds * 1000;
+
+            if (castSession) {
+                castSession.sendMessage('urn:x-cast:com.webslideshow', {
+                    urls: urls,
+                    displayTime: displayTimeMs
                 });
+            }
         }
 
-        function updateStatus(message) {
-            document.getElementById('status').textContent = message;
-            console.log('Status updated:', message);
+        function stopCasting() {
+            if (castSession) {
+                castSession.endSession(true);
+            }
         }
-
-        function checkDeviceAvailability() {
-    const context = cast.framework.CastContext.getInstance();
-    console.log('Current Cast State:', context.getCastState());
-    
-    if ('requestSessionAndLaunchApp' in chrome.cast) {
-        chrome.cast.requestSessionAndLaunchApp(
-            null,
-            sessionListener,
-            errorHandler
-        );
-    } else {
-        console.log('requestSessionAndLaunchApp not available');
-    }
-}
-
-function sessionListener(session) {
-    console.log('Session created successfully:', session);
-}
-
-function errorHandler(error) {
-    console.error('Error:', error);
-}
-
-
-
     </script>
-</head>
-<body>
-    <h1>Diagnostic Google Cast Sender</h1>
-    <button onclick="requestSession()">Connect to Chromecast</button>
-    <p id="status">Not connected</p>
-
-    <button onclick="checkDeviceAvailability()">Check Device Availability</button>
-
 </body>
-</html>-->
+</html>
