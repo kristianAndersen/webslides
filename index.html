@@ -107,8 +107,8 @@
                         cast.framework.CastContextEventType.CAST_STATE_CHANGED,
                         function(event) {
                             console.log('Cast state:', event.castState);
-                            
-                        },handleSessionStateChange
+                            handleSessionStateChange(event)
+                        }
                     );
                         
                     cast.framework.CastContext.getInstance().addEventListener(
