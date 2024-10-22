@@ -44,6 +44,10 @@
             background-color: #f8f9fa;
             border-radius: 4px;
         }
+        google-cast-launcher {
+    display: block;
+    margin: 20px;
+}
     </style>
 </head>
 <body>
@@ -74,18 +78,6 @@
 
 
         function initializeCastApi() {
-    // Check if the Cast API is actually available
-    if (!window.chrome || !window.chrome.cast || !window.cast) {
-        console.log('Cast API not available yet, retrying...');
-        if (initializeCastApiRetries < 5) {
-            initializeCastApiRetries++;
-            setTimeout(initializeCastApi, 1000); // Try again in 1 second
-        } else {
-            console.error('Cast API failed to load after 5 attempts');
-        }
-        return;
-    }
-
     try {
         // Initialize cast loader
         window['__onGCastApiAvailable'] = function(isAvailable) {
@@ -97,11 +89,15 @@
                         autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
                     });
 
-                    // Add event listener
+                    // Add Cast button
+                    const castButton = new google.cast.framework.CastButtonElement();
+                    document.body.insertBefore(castButton, document.body.firstChild);
+
+                    // Add event listeners
                     cast.framework.CastContext.getInstance().addEventListener(
                         cast.framework.CastContextEventType.CAST_STATE_CHANGED,
                         function(event) {
-                            console.log('Cast state changed:', event);
+                            console.log('Cast state:', event.castState);
                         }
                     );
 
@@ -114,8 +110,6 @@
                 } catch (e) {
                     console.error('Error during Cast initialization:', e);
                 }
-            } else {
-                console.error('Cast API not available');
             }
         };
     } catch (e) {
@@ -123,34 +117,31 @@
     }
 }
 
-        function handleSessionStateChange(event) {
-            
-            console.log('Received session state change event.');
+function handleSessionStateChange(event) {
+    console.log('Session state:', event.sessionState);
+    const session = cast.framework.CastContext.getInstance().getCurrentSession();
+    const startButton = document.getElementById('startCast');
+    const stopButton = document.getElementById('stopCast');
 
-            const session = cast.framework.CastContext.getInstance().getCurrentSession();
-            const statusDiv = document.getElementById('castStatus');
-            const startButton = document.getElementById('startCast');
-            const stopButton = document.getElementById('stopCast');
-
-            switch(event.sessionState) {
-                case cast.framework.SessionState.NO_SESSION:
-                    statusDiv.textContent = 'Cast status: Not connected';
-                    startButton.disabled = true;
-                    stopButton.disabled = true;
-                    break;
-                case cast.framework.SessionState.CONNECTED:
-                    statusDiv.textContent = 'Cast status: Connected';
-                    castSession = session;
-                    startButton.disabled = false;
-                    stopButton.disabled = false;
-                    break;
-                case cast.framework.SessionState.CONNECTING:
-                    statusDiv.textContent = 'Cast status: Connecting...';
-                    startButton.disabled = true;
-                    stopButton.disabled = true;
-                    break;
-            }
-        }
+    switch(event.sessionState) {
+        case cast.framework.SessionState.NO_SESSION:
+            console.log('No session');
+            startButton.disabled = true;
+            stopButton.disabled = true;
+            break;
+        case cast.framework.SessionState.CONNECTED:
+            console.log('Connected!');
+            castSession = session;
+            startButton.disabled = false;
+            stopButton.disabled = false;
+            break;
+        case cast.framework.SessionState.CONNECTING:
+            console.log('Connecting...');
+            startButton.disabled = true;
+            stopButton.disabled = true;
+            break;
+    }
+}
 
         function addUrlInput() {
             const urlList = document.getElementById('urlList');
