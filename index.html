@@ -107,14 +107,14 @@
                         cast.framework.CastContextEventType.CAST_STATE_CHANGED,
                         function(event) {
                             console.log('Cast state:', event.castState);
-                            handleSessionStateChange();
-                        }
+                            
+                        },handleSessionStateChange
                     );
-                        /*
+                        
                     cast.framework.CastContext.getInstance().addEventListener(
                         cast.framework.CastContextEventType.SESSION_STATE_CHANGED,
                         handleSessionStateChange
-                    );*/
+                    );
 
                     console.log('Cast API successfully initialized');
                 } catch (e) {
