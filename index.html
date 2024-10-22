@@ -19,6 +19,15 @@
 
 
     function initializeCast() {
+
+        new chrome.cast.framework.CastContext.getInstance().setOptions({
+                        receiverApplicationId: 'ED052386',
+                        autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
+
+      });
+
+
+
       const sessionRequest = new chrome.cast.SessionRequest('ED052386');
       const apiConfig = new chrome.cast.ApiConfig(sessionRequest, sessionListener, receiverListener);
       chrome.cast.initialize(apiConfig, onInitSuccess, onError);
