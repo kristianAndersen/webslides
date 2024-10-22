@@ -9,11 +9,14 @@
     let session = null;
 
     // Initialize the Cast API
-    window['__onGCastApiAvailable'] = function(isAvailable) {
-      if (isAvailable) {
-        initializeCast();
-      }
-    };
+    window.onload = function() {
+  window['__onGCastApiAvailable'] = function(isAvailable) {
+    if (isAvailable) {
+      initializeCast();
+    }
+  };
+};
+
 
     function initializeCast() {
       const sessionRequest = new chrome.cast.SessionRequest('ED052386');
@@ -26,7 +29,7 @@
     }
 
 
-    
+
     function receiverListener(e) {
       if (e === chrome.cast.ReceiverAvailability.AVAILABLE) {
         document.getElementById('castButton').style.display = 'block';
