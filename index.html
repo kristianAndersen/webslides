@@ -5,6 +5,7 @@
     <meta name="google-site-verification" content="_XvmZoCUOo_pqbKc2pqZSsQQZXhUm73PJl0CU0o-hDU" />
     <!-- Load the Cast APIs -->
     <script type="text/javascript" src="//www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
+ 
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -68,6 +69,7 @@
             Display time per page (seconds):
             <input type="number" id="displayTime" value="5" min="1" max="300">
         </label>
+        <google-cast-launcher></google-cast-launcher>
         <button id="startCast">Start Casting</button>
         <button id="stopCast">Stop Casting</button>
     </div>
@@ -78,15 +80,25 @@
     
     
 document.addEventListener('DOMContentLoaded', function() {
-  const playButton = document.getElementById('startCast');
-  const pauseButton = document.getElementById('stopCast');
-  
-  // Initialize the Cast context and set the receiver app ID
-  const castContext = cast.framework.CastContext.getInstance();
-  castContext.setOptions({
+    
+    window['__onGCastApiAvailable'] = function(isAvailable) {
+        if (isAvailable) {
+            initializeCastApi();
+        }
+    };
+    
+
+   const initializeCastApi = ()=> {
+  cast.framework.CastContext.getInstance().setOptions({
     receiverApplicationId: 'ED052386',
     autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
   });
+
+};
+
+let  castSession = cast.framework.CastContext.getInstance().getCurrentSession();
+
+console.log(castSession)
 
   // Add event listeners for the play and pause buttons
   playButton.addEventListener('click', function() {
