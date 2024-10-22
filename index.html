@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Refined Diagnostic Cast Sender</title>
-    <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js"></script>
+
+   
+
     <script>
         let castContext;
         const applicationId = 'ED052386'; // Your custom receiver app ID
@@ -12,13 +14,26 @@
         window['__onGCastApiAvailable'] = function(isAvailable) {
             console.log('Cast API available:', isAvailable);
             if (isAvailable) {
-                initializeCastApi();
+
+                castContext = cast.framework.CastContext.getInstance();
+
+                cast.framework.CastContext.getInstance().setOptions({
+                receiverApplicationId: applicationId, // Adapt this
+                autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED // And this if you want to
+                });
+
+              
+                const castState = castContext.getCastState();
+                console.log('Current Cast State:', castState);
+         
+                
             } else {
                 console.error('Cast API is not available');
                 updateStatus('Cast API is not available');
             }
         };
 
+/*
         function initializeCastApi() {
             try {
                 cast.framework.CastContext.getInstance().setOptions({
@@ -93,7 +108,7 @@
         function updateStatus(message) {
             document.getElementById('status').textContent = message;
             console.log('Status updated:', message);
-        }
+        }*/
     </script>
 </head>
 <body>
@@ -103,6 +118,7 @@
     <button onclick="initiateManualCast()">Try Manual Cast</button>
     <p id="status">Not connected</p>
 </body>
+<script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
 </html>
 
 
