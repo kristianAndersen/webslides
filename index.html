@@ -85,9 +85,14 @@
                 cast.framework.CastContextEventType.SESSION_STATE_CHANGED,
                 handleSessionStateChange
             );
+
+            console.log('Cast API initialized.');
         }
 
         function handleSessionStateChange(event) {
+            
+            console.log('Received session state change event.');
+
             const session = cast.framework.CastContext.getInstance().getCurrentSession();
             const statusDiv = document.getElementById('castStatus');
             const startButton = document.getElementById('startCast');
@@ -146,10 +151,13 @@
             const displayTimeMs = displayTimeSeconds * 1000;
 
             if (castSession) {
+                console.log('Casting to existing session');
                 castSession.sendMessage('urn:x-cast:com.webslideshow', {
                     urls: urls,
                     displayTime: displayTimeMs
                 });
+            }else{
+                console.loog('buu');
             }
         }
 
