@@ -14,27 +14,17 @@
         window['__onGCastApiAvailable'] = function(isAvailable) {
             console.log('Cast API available:', isAvailable);
             if (isAvailable) {
-
-                castContext = cast.framework.CastContext.getInstance();
-
-                cast.framework.CastContext.getInstance().setOptions({
-                receiverApplicationId: applicationId, // Adapt this
-                autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED // And this if you want to
-                });
-
-              
-                const castState = castContext.getCastState();
-                console.log('Current Cast State:', castState);
-         
-                
+                initializeCastApi();
             } else {
                 console.error('Cast API is not available');
                 updateStatus('Cast API is not available');
             }
         };
 
-/*
-        function initializeCastApi() {
+
+
+
+        const initializeCastApi =()=> {
             try {
                 cast.framework.CastContext.getInstance().setOptions({
                     receiverApplicationId: applicationId,
@@ -52,7 +42,11 @@
                 console.error('Error initializing Cast API:', error);
                 updateStatus('Failed to initialize Cast API: ' + error.message);
             }
+
         }
+
+
+
 
         function castStateListener(event) {
             console.log('Cast state changed:', event.castState);
@@ -108,7 +102,9 @@
         function updateStatus(message) {
             document.getElementById('status').textContent = message;
             console.log('Status updated:', message);
-        }*/
+        }
+
+        
     </script>
 </head>
 <body>
