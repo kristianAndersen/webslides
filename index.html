@@ -72,28 +72,55 @@
         let castSession = null;
 
 
-        window['__onGCastApiAvailable'] = function(isAvailable) {
-		if (isAvailable) {
-            initializeCastApi();
-		}
-	    };
-
-
         function initializeCastApi() {
-            
-            cast.framework.CastContext.getInstance().setOptions({
-                receiverApplicationId: APPLICATION_ID,
-                autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
-            });
-
-            cast.framework.CastContext.getInstance().addEventListener(
-                cast.framework.CastContextEventType.SESSION_STATE_CHANGED,
-                handleSessionStateChange
-            );
-           
-            console.log('Cast API initialized.');
-            console.log(cast)
+    // Check if the Cast API is actually available
+    if (!window.chrome || !window.chrome.cast || !window.cast) {
+        console.log('Cast API not available yet, retrying...');
+        if (initializeCastApiRetries < 5) {
+            initializeCastApiRetries++;
+            setTimeout(initializeCastApi, 1000); // Try again in 1 second
+        } else {
+            console.error('Cast API failed to load after 5 attempts');
         }
+        return;
+    }
+
+    try {
+        // Initialize cast loader
+        window['__onGCastApiAvailable'] = function(isAvailable) {
+            if (isAvailable) {
+                try {
+                    // Initialize Cast context
+                    cast.framework.CastContext.getInstance().setOptions({
+                        receiverApplicationId: APPLICATION_ID,
+                        autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
+                    });
+
+                    // Add event listener
+                    cast.framework.CastContext.getInstance().addEventListener(
+                        cast.framework.CastContextEventType.CAST_STATE_CHANGED,
+                        function(event) {
+                            console.log('Cast state changed:', event);
+                        }
+                    );
+
+                    cast.framework.CastContext.getInstance().addEventListener(
+                        cast.framework.CastContextEventType.SESSION_STATE_CHANGED,
+                        handleSessionStateChange
+                    );
+
+                    console.log('Cast API successfully initialized');
+                } catch (e) {
+                    console.error('Error during Cast initialization:', e);
+                }
+            } else {
+                console.error('Cast API not available');
+            }
+        };
+    } catch (e) {
+        console.error('Error setting up Cast API:', e);
+    }
+}
 
         function handleSessionStateChange(event) {
             
