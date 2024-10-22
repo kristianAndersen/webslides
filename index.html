@@ -73,153 +73,47 @@
     </div>
 
     <script>
-        const APPLICATION_ID = 'CC1AD845';
-        let castSession = null;
+  
 
-
-        function initializeCastApi() {
-    try {
-        // Initialize cast loader
-        window['__onGCastApiAvailable'] = function(isAvailable) {
-            if (isAvailable) {
-                try {
-                    // Initialize Cast context
-                    cast.framework.CastContext.getInstance().setOptions({
-                        receiverApplicationId: APPLICATION_ID,
-                        autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
-                    });
-
-                    // Add Cast button
-                        // Create cast button using cast.framework
-                        const castButton = document.createElement('button');
-                    castButton.className = 'cast-button';
-                    castButton.onclick = () => {
-                        const context = cast.framework.CastContext.getInstance();
-                        if (context.getCastState() !== cast.framework.CastState.CONNECTED) {
-                            context.requestSession();
-                        }
-                    };
-                    document.body.insertBefore(castButton, document.body.firstChild);
-
-
-                    // Add event listeners
-                    cast.framework.CastContext.getInstance().addEventListener(
-                        cast.framework.CastContextEventType.CAST_STATE_CHANGED,
-                        function(event) {
-                            console.log('Cast state:', event.castState);
-                            handleSessionStateChange(event)
-                        }
-                    );
-                        /*
-                    cast.framework.CastContext.getInstance().addEventListener(
-                        cast.framework.CastContextEventType.SESSION_STATE_CHANGED,
-                        handleSessionStateChange
-                    );*/
-
-                    console.log('Cast API successfully initialized');
-                } catch (e) {
-                    console.error('Error during Cast initialization:', e);
-                }
-            }
-        };
-    } catch (e) {
-        console.error('Error setting up Cast API:', e);
-    }
-}
-
-function handleSessionStateChange(event) {
-    console.log('Event:', event);
-
-    console.log('Session state:', event.sessionState);
-    const session = cast.framework.CastContext.getInstance().getCurrentSession();
-    const startButton = document.getElementById('startCast');
-    const stopButton = document.getElementById('stopCast');
-
- 
+        document.addEventListener('DOMContentLoaded', function() {  
     
-    startButton.disabled = false;
-    stopButton.disabled = false;
-
-    switch(event.sessionState) {
-        case cast.framework.SessionState.NO_SESSION:
-            console.log('No session');
-           
-            break;
-        case cast.framework.SessionState.CONNECTED:
-            console.log('Connected!');
-            castSession = session;
-        
-            break;
-        case cast.framework.SessionState.CONNECTING:
-            console.log('Connecting...');
-            
-            break;
-    }
-}
-
-        function addUrlInput() {
-            const urlList = document.getElementById('urlList');
-            const urlInput = document.createElement('div');
-            urlInput.className = 'url-input';
-            urlInput.innerHTML = `
-                <input type="text" placeholder="Enter URL (e.g., https://example.com)">
-                <button onclick="removeUrl(this)">Remove</button>
-            `;
-            urlList.appendChild(urlInput);
-        }
-
-        function removeUrl(button) {
-            button.parentElement.remove();
-        }
-
-        function getUrls() {
-            const inputs = document.querySelectorAll('.url-input input');
-            return Array.from(inputs)
-                .map(input => input.value.trim())
-                .filter(url => url !== '');
-        }
-
-        function startCasting() {
-            const urls = getUrls();
-            if (urls.length === 0) {
-                alert('Please add at least one URL');
-                return;
-            }
-
-            const displayTimeSeconds = document.getElementById('displayTime').value;
-            const displayTimeMs = displayTimeSeconds * 1000;
-
-            if (castSession) {
-                console.log('Casting to existing session');
-                castSession.sendMessage('urn:x-cast:com.webslideshow', {
-                    urls: urls,
-                    displayTime: displayTimeMs
-                });
-            }else{
-                console.log('buu');
-            }
-        }
-
-        function stopCasting() {
-            if (castSession) {
-                castSession.endSession(true);
-            }
-        }
-
-
-        // Make sure the Cast SDK is loaded properly
-window.onload = function() {
-    // Check if the Cast SDK script is loaded
-    const castScript = document.querySelector('script[src*="cast_sender.js"]');
-    if (!castScript) {
-        const script = document.createElement('script');
-        script.src = 'https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1';
-        script.async = true;
-        document.head.appendChild(script);
-    }
     
-    initializeCastApi();
-};
+            document.addEventListener('DOMContentLoaded', function() {
+  const playButton = document.getElementById('startCast');
+  const pauseButton = document.getElementById('stopCast');
+  
+  // Initialize the Cast context and set the receiver app ID
+  const castContext = cast.framework.CastContext.getInstance();
+  castContext.setOptions({
+    receiverApplicationId: 'ED052386',
+    autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
+  });
+
+  // Add event listeners for the play and pause buttons
+  playButton.addEventListener('click', function() {
+    const session = castContext.getCurrentSession();
+    if (session) {
+      const media = session.getMediaSession();
+      if (media) {
+        media.play();
+      }
+    }
+  });
+
+  pauseButton.addEventListener('click', function() {
+    const session = castContext.getCurrentSession();
+    if (session) {
+      const media = session.getMediaSession();
+      if (media) {
+        media.pause();
+      }
+    }
+  });
+});
+
+
+        });
+   
 
 
     </script>
