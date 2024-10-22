@@ -200,6 +200,23 @@
                 castSession.endSession(true);
             }
         }
+
+
+        // Make sure the Cast SDK is loaded properly
+window.onload = function() {
+    // Check if the Cast SDK script is loaded
+    const castScript = document.querySelector('script[src*="cast_sender.js"]');
+    if (!castScript) {
+        const script = document.createElement('script');
+        script.src = 'https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1';
+        script.async = true;
+        document.head.appendChild(script);
+    }
+    
+    initializeCastApi();
+};
+
+
     </script>
 </body>
 </html>
