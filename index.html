@@ -132,22 +132,24 @@ function handleSessionStateChange(event) {
     const startButton = document.getElementById('startCast');
     const stopButton = document.getElementById('stopCast');
 
+    console.log(event.sessionState)
+    
+    startButton.disabled = false;
+    stopButton.disabled = false;
+
     switch(event.sessionState) {
         case cast.framework.SessionState.NO_SESSION:
             console.log('No session');
-            startButton.disabled = true;
-            stopButton.disabled = true;
+           
             break;
         case cast.framework.SessionState.CONNECTED:
             console.log('Connected!');
             castSession = session;
-            startButton.disabled = false;
-            stopButton.disabled = false;
+        
             break;
         case cast.framework.SessionState.CONNECTING:
             console.log('Connecting...');
-            startButton.disabled = true;
-            stopButton.disabled = true;
+            
             break;
     }
 }
