@@ -71,11 +71,16 @@
         const APPLICATION_ID = 'ED052386';
         let castSession = null;
 
-        window.onload = function() {
+
+        window['__onGCastApiAvailable'] = function(isAvailable) {
+		if (isAvailable) {
             initializeCastApi();
-        };
+		}
+	    };
+
 
         function initializeCastApi() {
+            
             cast.framework.CastContext.getInstance().setOptions({
                 receiverApplicationId: APPLICATION_ID,
                 autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
@@ -85,8 +90,9 @@
                 cast.framework.CastContextEventType.SESSION_STATE_CHANGED,
                 handleSessionStateChange
             );
-
+           
             console.log('Cast API initialized.');
+            console.log(cast)
         }
 
         function handleSessionStateChange(event) {
